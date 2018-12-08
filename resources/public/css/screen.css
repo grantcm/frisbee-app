@@ -22,9 +22,21 @@ nav {
     height: 100%;
 }
 
+.flex-container-column {
+    display:flex;
+    flex-direction: column;
+    align-content: center;
+}
+
 .stat-container {
     flex-grow: 1;
     display: flex;
     flex-direction: column;
+}
+
+.stat-container-row {
+    flex-grow:1
+    display: flex;
+    flex-direction: row;
 }
 
