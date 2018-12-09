@@ -13,10 +13,13 @@ nav {
     align-content: center;
 }
 
+.field-canvas {
+    display: flex;
+}
+
 .field-container {
-    text-align: center;
     flex-grow:1;
-    margin-left: 5px;
+    margin: 5px;
     padding: 0px;
     border: 2px solid black;
     height: 100%;

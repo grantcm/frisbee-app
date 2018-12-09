@@ -14,3 +14,4 @@ profiles.clj
 /log
 /.idea
 *.iml
+.rebel_readline_history

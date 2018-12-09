@@ -29,6 +29,7 @@
 
 ;;Draw on canvas code
 (defn draw-first-endzone []
+  (js/console.log "Drawing first endzone")
   (let [ctx (:ctx @field-state)]
     (set! (.-fillStyle ctx) "#196f0c")
     (.fillRect ctx
@@ -45,6 +46,7 @@
                  (:endzone-height @field-state))))
 
 (defn draw-second-endzone []
+  (js/console.log "Drawing second endzone")
   (let [ctx (:ctx @field-state)]
     (set! (.-fillStyle ctx) "#196f0c")
     (.fillRect ctx
@@ -61,6 +63,7 @@
                  (:endzone-height @field-state))))
 
 (defn draw-main-field []
+  (js/console.log "Drawing main field")
   (let [ctx (:ctx @field-state)]
     (set! (.-fillStyle ctx) "#196f0c")
     (.fillRect ctx
@@ -98,7 +101,7 @@
            :field-start-x 0
            :field-start-y (* endzoneLength drawing-ratio)
            :field-height (* fieldLength drawing-ratio)
-           :field-width (* field-width drawing-ratio)
+           :field-width field-width
            :second-endzone-start-x 0
            :second-endzone-start-y (+ (* endzoneLength drawing-ratio) (* fieldLength drawing-ratio)))
     (js/console.log @field-state)))
@@ -127,6 +130,76 @@
   (reset! window-width (.-innerWidth js/window))
   (set-canvas-state))
 
+;;Since the click event takes the coordinates of the containing div, normalize to the canvas coordinates
+(defn normalize-click-to-canvas [click-x click-y]
+  (let [canvas-offset-x (.-offsetLeft (:canvas @canvas-state))
+        canvas-offset-y (.-offsetTop (:canvas @canvas-state))]
+    {:x (- click-x canvas-offset-x)
+     :y (- click-y canvas-offset-y)}))
+
+(defn coordinate-in-field [ coordinates ]
+  (let [field-start-x (:field-start-x @field-state)
+        field-start-y (:field-start-y @field-state)
+        field-end-x (+ field-start-x (:field-width @field-state))
+        field-end-y (+ field-start-y (:field-height @field-state))]
+    (if (=
+          (>= (:x coordinates) field-start-x)
+          (>= (:y coordinates) field-start-y)
+          (<= (:x coordinates) field-end-x)
+          (<= (:y coordinates) field-end-y))
+      true
+      false)))
+
+(defn coordinate-in-endzone-1 [ coordinates ]
+  (let [endzone-start-x (:first-endzone-start-x @field-state)
+        endzone-start-y (:first-endzone-start-y @field-state)
+        endzone-end-x (+ endzone-start-x (:field-width @field-state))
+        endzone-end-y (+ endzone-start-y (:endzone-height @field-state))]
+    (if (=
+          (>= (:x coordinates) endzone-start-x)
+          (>= (:y coordinates) endzone-start-y)
+          (<= (:x coordinates) endzone-end-x)
+          (<= (:y coordinates) endzone-end-y))
+      true
+      false)))
+
+(defn coordinate-in-endzone-2 [ coordinates ]
+  (let [endzone-start-x (:second-endzone-start-x @field-state)
+        endzone-start-y (:second-endzone-start-y @field-state)
+        endzone-end-x (+ endzone-start-x (:field-width @field-state))
+        endzone-end-y (+ endzone-start-y (:endzone-height @field-state))]
+    (if (=
+          (>= (:x coordinates) endzone-start-x)
+          (>= (:y coordinates) endzone-start-y)
+          (<= (:x coordinates) endzone-end-x)
+          (<= (:y coordinates) endzone-end-y))
+      true
+      false)))
+
+(defn translate-click-to-field [ coordinates ]
+  (if (neg? (:x coordinates))
+    "Out of bounds"
+    (if (neg? (:y coordinates))
+      "Out of bounds"
+      (if (coordinate-in-field coordinates)
+        "In main field"
+        (if (coordinate-in-endzone-1 coordinates)
+          "In endzone 1"
+          (if (coordinate-in-endzone-2 coordinates)
+            "In endzone 2"
+            "Out of bounds"))))))
+
+;;Click evt coordinates are relative to the containing div, so first calculate the
+;;0,0 position of the canvas
+;;Click includes the margin and border of the div
+(defn handle-canvas-click [ evt ]
+  (let [click-x (.-clientX evt)
+        click-y (.-clientY evt)
+        coordinates (normalize-click-to-canvas click-x click-y)]
+    (js/console.log "Click at X: " click-x " Y: " click-y)
+    (js/console.log "Normalized click" coordinates)
+    (js/console.log (translate-click-to-field coordinates))))
+
 ;;Renders the canvas element
 (defn field-canvas []
   (r/create-class
@@ -145,8 +218,8 @@
      (fn []
        ;;Render whenever window-width changes
        @window-width
-       [:div {:class "field-container"}
-        [:canvas @canvas-state]])}))
+       [:div {:class "field-container" :on-click handle-canvas-click}
+        [:canvas (assoc (dissoc @canvas-state :canvas) :class "field-canvas")]])}))
 
 (defn home-page []
   (js/console.log "Rendering home page")
