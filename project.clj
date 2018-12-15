@@ -1,7 +1,7 @@
 (defproject frisbee-spa "0.1.0-SNAPSHOT"
 
-  :description "FIXME: write description"
-  :url "http://example.com/FIXME"
+  :description "App description"
+  :url "http://example.com/TODO"
 
   :dependencies [[baking-soda "0.2.0" :exclusions [cljsjs/react-bootstrap]]
                  [cljs-ajax "0.8.0"]
@@ -15,6 +15,7 @@
                  [com.novemberain/monger "3.1.0" :exclusions [com.google.guava/guava]]
                  [compojure "1.6.1"]
                  [cprop "0.1.13"]
+                 [figwheel-sidecar "0.5.15"]
                  [funcool/struct "1.3.0"]
                  [luminus-immutant "0.2.4"]
                  [luminus-transit "0.1.1"]
@@ -41,7 +42,7 @@
 
   :min-lein-version "2.0.0"
   
-  :source-paths ["src/clj" "src/cljs" "src/cljc"]
+  :source-paths ["src/clj" "src/cljs" "src/cljc" "scripts"]
   :test-paths ["test/clj"]
   :resource-paths ["resources" "target/cljsbuild"]
   :target-path "target/%s/"

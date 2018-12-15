@@ -1,5 +1,6 @@
 (ns frisbee-spa.ajax
   (:require [ajax.core :as ajax]
+            [ajax.core :refer [GET POST]]
             [luminus-transit.time :as time]
             [cognitect.transit :as transit]))
 
@@ -26,3 +27,22 @@
          conj
          (ajax/to-interceptor {:name "default headers"
                                :request default-headers})))
+
+(defn response-handle [ response ]
+  (.log js/console (str response)))
+
+(defn error-handler [ {:keys [status status-text]} ]
+  (.log js/console (str "Error with request: " status "\nMessage: " status-text)))
+
+(defn send-click [ params ]
+  (js/console.log params)
+  (POST "/send-click"
+        {:format :json
+         :params {:x (:x params)
+                  :y (:y params)}
+         :headers {"Accept" "application/json"
+                   "x-csrf-token" js/csrfToken}
+         :handler response-handle
+         :error-handler error-handler}))
+
+

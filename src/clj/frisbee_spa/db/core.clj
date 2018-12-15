@@ -12,14 +12,16 @@
 (defstate db
   :start (:db db*))
 
-(defn create-user [user]
-  (mc/insert db "users" user))
+(defn insert-point [point]
+  (mc/insert db "points" point))
 
-(defn update-user [id first-name last-name email]
-  (mc/update db "users" {:_id id}
-             {$set {:first_name first-name
-                    :last_name last-name
-                    :email email}}))
+(defn update-point [id x-coordinate y-coordinate]
+  (mc/update db "points" {:_id id}
+             {$set {:x x-coordinate
+                    :y y-coordinate}}))
 
-(defn get-user [id]
-  (mc/find-one-as-map db "users" {:_id id}))
+(defn get-points []
+  (mc/find db "points"))
+
+(defn get-point [id]
+  (mc/find-one-as-map db "points" {:_id id}))

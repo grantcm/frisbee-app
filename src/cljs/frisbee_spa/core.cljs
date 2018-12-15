@@ -58,7 +58,15 @@
   (swap! session assoc :page :home))
 
 (secretary/defroute "/about" []
+  (js/console.log "About page")
   (swap! session assoc :page :about))
+
+(secretary/defroute "/log" []
+  (js/console.log "Test-log"))
+
+(secretary/defroute "/:x" [ coordinates ]
+  (js/console.log "Called send-click route")
+  (js/console.log coordinates))
 
 ;; -------------------------
 ;; History
